@@ -71,6 +71,29 @@ dev = [
 [tool.setuptools.exclude-package-data]
 sksparse = ["*.c", "*.pyx"]
 
+[tool.cibuildwheel]
+# Settings for the experimental wheels with SuiteSparse built in. The build
+# scripts are in tools/wheels/.
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+skip = ["*-musllinux_*"]
+test-requires = ["pytest"]
+# The tests read data from "tests/data" relative to the working directory.
+test-sources = ["tests"]
+test-command = "pytest tests"
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]
+manylinux-x86_64-image = "manylinux_2_28"
+before-all = "bash {project}/tools/wheels/cibw_before_all.sh {project} /usr/local"
+
+[tool.cibuildwheel.linux.environment]
+SUITESPARSE_INCLUDE_DIR = "/usr/local/include/suitesparse"
+SUITESPARSE_LIBRARY_DIR = "/usr/local/lib"
+LD_LIBRARY_PATH = "/usr/local/lib:$LD_LIBRARY_PATH"
+SKSPARSE_SCIPY_BLAS = "1"
+# Leave debug info out of the extensions. It triples the size of the wheel.
+LDFLAGS = "-Wl,--strip-debug"
+
 [tool.cython]
 language_level = "3"
 

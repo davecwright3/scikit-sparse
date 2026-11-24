@@ -1,0 +1,38 @@
+name: Wheels
+
+# Build and test the experimental wheels with SuiteSparse bundled in, and
+# upload them as artifacts. This workflow does not publish anything.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "wheels/*"
+  pull_request:
+    paths:
+      - ".github/workflows/wheels.yml"
+      - "tools/wheels/**"
+      - "pyproject.toml"
+      - "setup.py"
+
+jobs:
+  build-wheels:
+    name: Wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Build and test wheels
+        uses: pypa/cibuildwheel@v4.3.5
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v7
+        with:
+          name: wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl

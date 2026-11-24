@@ -63,6 +63,15 @@ References
 from importlib.metadata import version, PackageNotFoundError
 from importlib import import_module
 
+# The binary wheels use SciPy's BLAS and LAPACK. _scipy_blas must connect
+# SuiteSparse to them before any submodule calls into SuiteSparse. Builds from
+# source link a BLAS directly and have no _scipy_blas module.
+try:
+    import_module(f"{__name__}._scipy_blas")
+except ModuleNotFoundError as e:
+    if e.name != f"{__name__}._scipy_blas":
+        raise
+
 try:
     __version__ = version("scikit-sparse")
 except PackageNotFoundError:

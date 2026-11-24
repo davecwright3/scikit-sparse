@@ -112,5 +112,19 @@ extensions = [
     for name in extension_names
 ]
 
+# The binary wheels link SuiteSparse against libsksparse_blas instead of a
+# BLAS. The build scripts for the wheels are in tools/wheels/. The _scipy_blas
+# extension connects libsksparse_blas to SciPy's BLAS and LAPACK when sksparse
+# is imported.
+if os.getenv("SKSPARSE_SCIPY_BLAS") == "1":
+    extensions.append(
+        Extension(
+            "sksparse._scipy_blas",
+            ["src/sksparse/_scipy_blas.pyx"],
+            library_dirs=LIBRARY_DIRS,
+            libraries=["sksparse_blas"],
+        )
+    )
+
 # No need to call "cythonize" here. Rely on pyproject.toml.
 setup(ext_modules=extensions)
