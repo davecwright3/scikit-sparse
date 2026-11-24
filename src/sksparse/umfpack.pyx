@@ -2087,6 +2087,9 @@ cdef class UMFFactor:
         """
         cdef int status
         cdef bint do_recip
+        # UMFPACK writes an integer of the index type into do_recip.
+        cdef int32_t do_recip32 = 0
+        cdef int64_t do_recip64 = 0
 
         # Extract the numeric factorization
         if self._is_real:
@@ -2101,7 +2104,7 @@ cdef class UMFFactor:
                     <int32_t*>&P[0],
                     <int32_t*>&Q[0],
                     NULL,  # Dx
-                    <int32_t*>&do_recip,
+                    &do_recip32,
                     <double*>&Rs[0],
                     self._numeric
                 )
@@ -2116,7 +2119,7 @@ cdef class UMFFactor:
                     <int64_t*>&P[0],
                     <int64_t*>&Q[0],
                     NULL,  # Dx
-                    <int64_t*>&do_recip,
+                    &do_recip64,
                     <double*>&Rs[0],
                     self._numeric
                 )
@@ -2135,7 +2138,7 @@ cdef class UMFFactor:
                     <int32_t*>&Q[0],
                     NULL,  # Dx
                     NULL,  # Dz
-                    <int32_t*>&do_recip,
+                    &do_recip32,
                     <double*>&Rs[0],
                     self._numeric
                 )
@@ -2153,12 +2156,13 @@ cdef class UMFFactor:
                     <int64_t*>&Q[0],
                     NULL,  # Dx
                     NULL,  # Dz
-                    <int64_t*>&do_recip,
+                    &do_recip64,
                     <double*>&Rs[0],
                     self._numeric
                 )
 
         _handle_errors(status)
+        do_recip = do_recip32 if self._use_int32 else do_recip64
 
         # From umfpack.h:
         #   If do_recip is TRUE (one), then the scale factors Rs [i] are to be used
