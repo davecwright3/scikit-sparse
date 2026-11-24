@@ -94,6 +94,16 @@ SKSPARSE_SCIPY_BLAS = "1"
 # Leave debug info out of the extensions. It triples the size of the wheel.
 LDFLAGS = "-Wl,--strip-debug"
 
+[tool.cibuildwheel.macos]
+archs = ["arm64"]
+before-all = "bash {project}/tools/wheels/cibw_before_all.sh {project} /tmp/sksparse-suitesparse"
+
+[tool.cibuildwheel.macos.environment]
+SUITESPARSE_INCLUDE_DIR = "/tmp/sksparse-suitesparse/include/suitesparse"
+SUITESPARSE_LIBRARY_DIR = "/tmp/sksparse-suitesparse/lib"
+SKSPARSE_SCIPY_BLAS = "1"
+MACOSX_DEPLOYMENT_TARGET = "11.0"
+
 [tool.cython]
 language_level = "3"
 
